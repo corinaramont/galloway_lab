@@ -41,7 +41,7 @@ wilcox_pvals = c()
 
 # create a new dataframe called data1
 # filtered to keep only drug name ceFEPime HCL for analysis
-data1 = (data %>% filter(Genericname == drugs[1]))[,5:8]
+data1 = (data %>% filter(Genericname == drugs[1]))
 
 # ARI
 ggplot(data1, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -76,7 +76,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 # create a new dataframe called data2
 # filtered to keep only drug name cefPODoxime Proxetil for analysis
-data2 = (data %>% filter(Genericname == drugs[2]))[,5:8]
+data2 = (data %>% filter(Genericname == drugs[2]))
 
 # ARI
 ggplot(data2, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -107,7 +107,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ##################### 3. CIPROfloxacin ##################################
 
-data3 = (data %>% filter(Genericname == drugs[3]))[,5:8]
+data3 = (data %>% filter(Genericname == drugs[3]))
 
 # ARI
 ggplot(data3, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -137,7 +137,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################### 4. Levofloxacin ################################
 
-data4 = (data %>% filter(Genericname == drugs[4]))[,5:8]
+data4 = (data %>% filter(Genericname == drugs[4]))
 
 # ARI
 ggplot(data4, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -167,7 +167,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################### 5. Linezolid ###################################
 
-data5 = (data %>% filter(Genericname == drugs[5]))[,5:8]
+data5 = (data %>% filter(Genericname == drugs[5]))
 
 # ARI
 ggplot(data5, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -198,7 +198,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ########################### 6. Amikacin ###################################
 
-data6 = (data %>% filter(Genericname == drugs[6]))[,5:8]
+data6 = (data %>% filter(Genericname == drugs[6]))
 
 # ARI
 ggplot(data6, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -228,7 +228,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ############################ 7. MeroPENEM #################################
 
-data7 = (data %>% filter(Genericname == drugs[7]))[,5:8]
+data7 = (data %>% filter(Genericname == drugs[7]))
 
 # ARI
 ggplot(data7, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -258,7 +258,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ########################## 8. Tigecycline #################################
 
-data8 = (data %>% filter(Genericname == drugs[8]))[,5:8]
+data8 = (data %>% filter(Genericname == drugs[8]))
 
 # ARI
 ggplot(data8, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -288,7 +288,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################### 9. Piperacillin/Tazobactam #######################
 
-data9 = (data %>% filter(Genericname == drugs[9]))[,5:8]
+data9 = (data %>% filter(Genericname == drugs[9]))
 
 # ARI
 ggplot(data9, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -318,7 +318,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################## 10. AZITHromycin ##################################
 
-data10 = (data %>% filter(Genericname == drugs[10]))[,5:8]
+data10 = (data %>% filter(Genericname == drugs[10]))
 
 # ARI
 ggplot(data10, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -348,7 +348,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ######################## 11. Ertapenem Sodium ############################
 
-data11 = (data %>% filter(Genericname == drugs[11]))[,5:8]
+data11 = (data %>% filter(Genericname == drugs[11]))
 
 # ARI
 ggplot(data11, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -378,7 +378,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ###################### 12. Metronidazole #############################
 
-data12 = (data %>% filter(Genericname == drugs[12]))[,5:8]
+data12 = (data %>% filter(Genericname == drugs[12]))
 
 # ARI
 ggplot(data12, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -408,7 +408,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ################## 13. Trimethoprim/Sulfamethoxazole ####################
 
-data13 = (data %>% filter(Genericname == drugs[13]))[,5:8]
+data13 = (data %>% filter(Genericname == drugs[13]))
 
 # ARI
 ggplot(data13, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -440,7 +440,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ######################### 14. DAPTOmycin #################################
 
-data14 = (data %>% filter(Genericname == drugs[14]))[,5:8]
+data14 = (data %>% filter(Genericname == drugs[14]))
 
 # ARI
 ggplot(data14, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -470,7 +470,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################### 15. cefTAZidime ###############################
 
-data15 = (data %>% filter(Genericname == drugs[15]))[,5:8]
+data15 = (data %>% filter(Genericname == drugs[15]))
 
 # ARI
 ggplot(data15, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -500,7 +500,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ####################### 16. Minocycline ##################################
 
-data16 = (data %>% filter(Genericname == drugs[16]))[,5:8]
+data16 = (data %>% filter(Genericname == drugs[16]))
 
 # ARI
 ggplot(data16, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -530,7 +530,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ####################### 17. cefTRIAXone Sodium #########################
 
-data17 = (data %>% filter(Genericname == drugs[17]))[,5:8]
+data17 = (data %>% filter(Genericname == drugs[17]))
 
 # ARI
 ggplot(data17, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -560,7 +560,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ################## 18. Amoxicillin & Pot Clavulanate #####################
 
-data18 = (data %>% filter(Genericname == drugs[18]))[,5:8]
+data18 = (data %>% filter(Genericname == drugs[18]))
 
 # ARI
 ggplot(data18, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -592,7 +592,7 @@ kruskal_pvals = c(kruskal_pvals, kruskal_ARI$p.value, kruskal_ARC$p.value,
 
 ######################## 19. Aztreonam #####################################
 
-data19 = (data %>% filter(Genericname == drugs[19]))[,5:8]
+data19 = (data %>% filter(Genericname == drugs[19]))
 
 # ARI
 ggplot(data19, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -622,7 +622,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ######################## 20. Vancomycin ##############################
 
-data20 = (data %>% filter(Genericname == drugs[20]))[,5:8]
+data20 = (data %>% filter(Genericname == drugs[20]))
 
 # ARI
 ggplot(data20, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -652,7 +652,7 @@ kruskal_pvals = c(kruskal_pvals, NA, kruskal_ARC$p.value,
 
 ###################### 21. Tobramycin Sulfate #############################
 
-data21 = (data %>% filter(Genericname == drugs[21]))[,5:8]
+data21 = (data %>% filter(Genericname == drugs[21]))
 
 # ARI
 ggplot(data21, aes(ARI, Days_on_drug)) + geom_boxplot() + 
@@ -699,3 +699,52 @@ planC_kruskal_results = data.frame(drug = all_drug, outcome = outcome,
 # Question: are there differences between the number of days a patient is on a particular drug 
 # on among the different outcome groups (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) 
 # as well as gain/loss of ARGs?
+
+path2 = "Datasets/amr_analysis_pt1_counts.xlsx"
+ARG_count = (multiplesheets(path2))$Combined
+wilcox_pvalues = c()
+
+for(i in 1:length(drugs)){
+  tempdata = data %>% filter(Genericname == drugs[i])
+  ARG_BL = c()
+  ARG_EOS = c()
+  for(j in 1:nrow(tempdata)){
+    cohort = tempdata$Cohort[j]
+    pt_id = tempdata$`Patient ID`[j]
+    temp = ARG_count %>% filter(cohort == cohort, pt == pt_id)
+    if(nrow(temp) > 0){
+      ARG_BL[j] = temp$BL
+      ARG_EOS[j] = temp$EOS
+    }else{
+      ARG_BL[j] = NA
+      ARG_EOS[j] = NA
+    }
+  }
+  # create new columns in data to hold ARG counts
+  tempdata$ARG_BL = ARG_BL
+  tempdata$ARG_EOS = ARG_EOS
+  
+  # take only the patients that have both BL and EOS ARG counts for our next analyses
+  new_data = na.omit(tempdata)
+  gain = c()
+  
+  if(nrow(new_data) > 1){
+    for(k in 1:nrow(new_data)){
+    if(new_data$ARG_EOS[k] - new_data$ARG_BL[k] > 0){
+      gain[k] = 1
+    }else{
+      gain[k] = 0
+    }
+  }
+    if((0 %in% gain == T) & (1 %in% gain == T)){
+      test = wilcox.test(Days_on_drug ~ gain, data = new_data)
+      wilcox_pvalues = c(wilcox_pvalues, test$p.value)
+    }else{
+      wilcox_pvalues = c(wilcox_pvalues, NA)
+    }
+  }else{
+    wilcox_pvalues = c(wilcox_pvalues, NA)
+  }
+}
+arg_drug_results = data.frame(drug = drugs, pval = wilcox_pvalues)
+
