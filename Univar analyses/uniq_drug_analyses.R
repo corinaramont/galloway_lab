@@ -93,3 +93,10 @@ new_data$gain = as.factor(gain)
 
 ###################### DIFFERENCES ################################
 wilcox.test(num_of_uniq_drugs ~ gain, data = new_data)
+
+#########################################################################
+# Question 1b: are there differences between the number of unique drugs a 
+# patient is on among the different outcome groups 
+# (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) as well as delta ARG counts?
+new_data$delta = new_data$ARG_EOS - new_data$ARG_BL
+cor.test(new_data$num_of_uniq_drugs, new_data$delta, method = "spearman")
