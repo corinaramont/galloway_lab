@@ -748,3 +748,49 @@ for(i in 1:length(drugs)){
 }
 arg_drug_results = data.frame(drug = drugs, pval = wilcox_pvalues)
 
+################################################################################
+
+# Question: are there differences between the number of days a patient is on a particular drug 
+# on among the different outcome groups (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) 
+# as well as delta ARG counts?
+
+delta_pvals = c()
+
+for(i in 1:length(drugs)){
+  tempdata = data %>% filter(Genericname == drugs[i])
+  ARG_BL = c()
+  ARG_EOS = c()
+  for(j in 1:nrow(tempdata)){
+    cohort = tempdata$Cohort[j]
+    pt_id = tempdata$`Patient ID`[j]
+    temp = ARG_count %>% filter(cohort == cohort, pt == pt_id)
+    if(nrow(temp) > 0){
+      ARG_BL[j] = temp$BL
+      ARG_EOS[j] = temp$EOS
+    }else{
+      ARG_BL[j] = NA
+      ARG_EOS[j] = NA
+    }
+  }
+  # create new columns in data to hold ARG counts
+  tempdata$ARG_BL = ARG_BL
+  tempdata$ARG_EOS = ARG_EOS
+  
+  # take only the patients that have both BL and EOS ARG counts for our next analyses
+  new_data = na.omit(tempdata)
+  delta = c()
+  
+  if(nrow(new_data) > 1){
+    for(k in 1:nrow(new_data)){
+      delta[k] = new_data$ARG_EOS[k] - new_data$ARG_BL[k]
+    }
+    
+    test = cor.test(new_data$Days_on_drug, delta, method = "spearman")
+    delta_pvals = c(delta_pvals, test$p.value)
+  }else{
+    delta_pvals = c(delta_pvals, test$p.value)
+  }
+}
+
+delta_spear_results = data.frame(drug = drugs, pval = delta_pvals)
+
