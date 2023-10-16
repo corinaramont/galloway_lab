@@ -128,6 +128,59 @@ for(i in 1:length(all_drug)){
 total_num_admins_wilcox = data.frame(drug = all_drug, ARI = ARI_wilcox_pvals, 
                                      ARC = ARC_wilcox_pvals, Both = Both_wilcox_pvals)
 
+################## ASSOCIATIONS/CORRELATIONS #################################
+
+#1. ARI
+all_drug = unique(data3$drug)
+ARI_kw_pvals = c()
+for(i in 1:length(all_drug)){
+  temp = data3 %>% filter(drug == all_drug[i])
+  if(nrow(temp) > 1){
+    if((0 %in% temp$ARI == T) & (1 %in% temp$ARI == T)){
+      test = kruskal.test(total_admins ~ ARI, data = temp)
+      ARI_kw_pvals = c(ARI_kw_pvals, test$p.value)
+    }else{
+      ARI_kw_pvals = c(ARI_kw_pvals, NA)
+    }
+  }else{
+    ARI_kw_pvals = c(ARI_kw_pvals, NA)
+  }
+}
+
+#2. ARC
+ARC_kw_pvals = c()
+for(i in 1:length(all_drug)){
+  temp = data3 %>% filter(drug == all_drug[i])
+  if(nrow(temp) > 1){
+    if((0 %in% temp$ARC == T) & (1 %in% temp$ARC == T)){
+      test = kruskal.test(total_admins ~ ARC, data = temp)
+      ARC_kw_pvals = c(ARC_kw_pvals, test$p.value)
+    }else{
+      ARC_kw_pvals = c(ARC_kw_pvals, NA)
+    }
+  }else{
+    ARC_kw_pvals = c(ARC_kw_pvals, NA)
+  }
+}
+
+#3. Both
+Both_kw_pvals = c()
+for(i in 1:length(all_drug)){
+  temp = data3 %>% filter(drug == all_drug[i])
+  if(nrow(temp) > 1){
+    if((0 %in% temp$Both == T) & (1 %in% temp$Both == T)){
+      test = kruskal.test(total_admins ~ Both, data = temp)
+      Both_kw_pvals = c(Both_kw_pvals, test$p.value)
+    }else{
+      Both_kw_pvals = c(Both_kw_pvals, NA)
+    }
+  }else{
+    Both_kw_pvals = c(Both_kw_pvals, NA)
+  }
+}
+total_num_admins_kw = data.frame(drugs = all_drug, ARI = ARI_kw_pvals, 
+                                 ARC = ARC_kw_pvals, Both = Both_kw_pvals)
+
 ###############################################################################
 
 # Question: are there differences between the total number of admins a patient receives on a particular drug 
@@ -164,7 +217,8 @@ for(i in 1:length(all_drug)){
   
   if(nrow(new_data) > 1){
     for(k in 1:nrow(new_data)){
-      if(new_data$ARG_EOS[k] - new_data$ARG_BL[k] > 0){
+      sum = new_data$ARG_EOS[k] - new_data$ARG_BL[k]
+      if(sum > 0){
         gain[k] = 1
       }else{
         gain[k] = 0
@@ -181,3 +235,49 @@ for(i in 1:length(all_drug)){
   }
 }
 arg_drug_results = data.frame(drug = all_drug, pval = arg_wilcox_pvalues)
+
+###############################################################################
+
+# Question: are there differences between the total number of admins a patient receives on a particular drug 
+# among the different outcome groups (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both)
+# as well as delta ARG counts?
+
+delta_pvals = c()
+
+for(i in 1:length(all_drug)){
+  tempdata = data3 %>% filter(drug == all_drug[i])
+  ARG_BL = c()
+  ARG_EOS = c()
+  for(j in 1:nrow(tempdata)){
+    cohort = tempdata$cohort[j]
+    pt_id = tempdata$pt_id[j]
+    temp = ARG_count %>% filter(cohort == cohort, pt == pt_id)
+    if(nrow(temp) > 0){
+      ARG_BL[j] = temp$BL
+      ARG_EOS[j] = temp$EOS
+    }else{
+      ARG_BL[j] = NA
+      ARG_EOS[j] = NA
+    }
+  }
+  # create new columns in data to hold ARG counts
+  tempdata$ARG_BL = ARG_BL
+  tempdata$ARG_EOS = ARG_EOS
+  
+  # take only the patients that have both BL and EOS ARG counts for our next analyses
+  new_data = na.omit(tempdata)
+  delta = c()
+  
+  if(nrow(new_data) > 1){
+    for(k in 1:nrow(new_data)){
+      delta[k] = new_data$ARG_EOS[k] - new_data$ARG_BL[k]
+    }
+    
+    test = cor.test(new_data$total_admins, delta, method = "spearman")
+    delta_pvals = c(delta_pvals, test$p.value)
+  }else{
+    delta_pvals = c(delta_pvals, test$p.value)
+  }
+}
+
+delta_spear_results = data.frame(drug = all_drug, pval = delta_pvals)
