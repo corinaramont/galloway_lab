@@ -703,6 +703,7 @@ planC_kruskal_results = data.frame(drug = all_drug, outcome = outcome,
 path2 = "Datasets/amr_analysis_pt1_counts.xlsx"
 ARG_count = (multiplesheets(path2))$Combined
 wilcox_pvalues = c()
+complete_data_num_days = c()
 
 for(i in 1:length(drugs)){
   tempdata = data %>% filter(Genericname == drugs[i])
@@ -727,6 +728,7 @@ for(i in 1:length(drugs)){
   # take only the patients that have both BL and EOS ARG counts for our next analyses
   new_data = na.omit(tempdata)
   gain = c()
+  complete_data_num_days = rbind(complete_data_num_days, new_data)
   
   if(nrow(new_data) > 1){
     for(k in 1:nrow(new_data)){
@@ -747,6 +749,9 @@ for(i in 1:length(drugs)){
   }
 }
 arg_drug_results = data.frame(drug = drugs, pval = wilcox_pvalues)
+rownames(complete_data_num_days) = c()
+#write_xlsx(complete_data_num_days, 
+#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_num_days.xlsx")
 
 ################################################################################
 
