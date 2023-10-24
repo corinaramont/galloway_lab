@@ -11,6 +11,7 @@ library(writexl)
 library(ggplot2)
 library(tictoc)
 library(ggpubr)
+library(FSA)
 
 # loading function multiplesheets() from "read_multiple_sheets.R"
 # allows us to differentiate and read multiple sheets in a single Excel file
@@ -46,6 +47,23 @@ kruskal_Both = kruskal.test(num_of_uniq_drugs ~ Both, data = data)
 kruskal_results = data.frame(outcome = c("ARI", "ARC", "Both"), 
                              pvals = c(kruskal_ARI$p.value, kruskal_ARC$p.value,
                                        kruskal_Both$p.value))
+
+# kruskal-wallis actually done right
+num_AR_outcome = rep(0, nrow(data))
+for(i in 1:nrow(data)){
+  if((data$ARI[i] == 0 & data$ARC[i] == 1) | (data$ARI[i] == 1 & data$ARC[i] == 0)){
+    num_AR_outcome[i] = 1
+  }
+  if(data$ARI[i] == 1 & data$ARC[i] == 1){
+    num_AR_outcome[i] = 2
+  }
+}
+num_AR_outcome = as.factor(num_AR_outcome)
+new_data = cbind(data[,1:4], num_AR_outcome)
+kw_test = kruskal.test(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
+dunnTest(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
+
+
 ################################################################################
 
 # Question 1b: are there differences between the number of unique drugs a 
@@ -90,12 +108,18 @@ for(i in 1:nrow(new_data)){
 
 # new_data has added binary variable called gain (0 = loss/neither, 1 = gain)
 new_data$gain = as.factor(gain)
+complete_data_uniq_drug = new_data
+#write_xlsx(complete_data_uniq_drug, 
+#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_uniq_drug.xlsx")
 
 ###################### DIFFERENCES ################################
 wilcox.test(num_of_uniq_drugs ~ gain, data = new_data)
 
+###################### ASSOCIATIONS ################################
+kruskal.test(num_of_uniq_drugs ~ gain, data = new_data)
+
 #########################################################################
-# Question 1b: are there differences between the number of unique drugs a 
+# Question 1c: are there differences between the number of unique drugs a 
 # patient is on among the different outcome groups 
 # (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) as well as delta ARG counts?
 new_data$delta = new_data$ARG_EOS - new_data$ARG_BL

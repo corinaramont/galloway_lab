@@ -12,6 +12,7 @@ library(tictoc)
 library(ggpubr)
 library(DescTools)
 library(psych)
+library(FSA)
 
 # loading function multiplesheets() from "read_multiple_sheets.R"
 # allows us to differentiate and read multiple sheets in a single Excel file
@@ -181,6 +182,22 @@ for(i in 1:length(all_drug)){
 total_num_admins_kw = data.frame(drugs = all_drug, ARI = ARI_kw_pvals, 
                                  ARC = ARC_kw_pvals, Both = Both_kw_pvals)
 
+
+# kruskal wallis done right
+num_AR_outcome = rep(0, nrow(data3))
+for(i in 1:nrow(data3)){
+  if((data3$ARI[i] == 0 & data3$ARC[i] == 1) | (data3$ARI[i] == 1 & data3$ARC[i] == 0)){
+    num_AR_outcome[i] = 1
+  }
+  if(data3$ARI[i] == 1 & data3$ARC[i] == 1){
+    num_AR_outcome[i] = 2
+  }
+}
+num_AR_outcome = as.factor(num_AR_outcome)
+new_data = cbind(data3[,1:5], num_AR_outcome)
+kw_test = kruskal.test(total_admins ~ num_AR_outcome, data = new_data)
+kw_test
+
 ###############################################################################
 
 # Question: are there differences between the total number of admins a patient receives on a particular drug 
@@ -190,6 +207,8 @@ total_num_admins_kw = data.frame(drugs = all_drug, ARI = ARI_kw_pvals,
 path3 = "Datasets/amr_analysis_pt1_counts.xlsx"
 ARG_count = (multiplesheets(path3))$Combined
 arg_wilcox_pvalues = c()
+arg_kw_pvalues = c()
+complete_data_total_admin = c()
 
 for(i in 1:length(all_drug)){
   tempdata = data3 %>% filter(drug == all_drug[i])
@@ -214,6 +233,7 @@ for(i in 1:length(all_drug)){
   # take only the patients that have both BL and EOS ARG counts for our next analyses
   new_data = na.omit(tempdata)
   gain = c()
+  complete_data_total_admin = rbind(complete_data_total_admin, new_data)
   
   if(nrow(new_data) > 1){
     for(k in 1:nrow(new_data)){
@@ -226,15 +246,24 @@ for(i in 1:length(all_drug)){
     }
     if((0 %in% gain == T) & (1 %in% gain == T)){
       test = wilcox.test(total_admins ~ gain, data = new_data)
+      test2 = kruskal.test(total_admins ~ gain, data = new_data)
       arg_wilcox_pvalues = c(arg_wilcox_pvalues, test$p.value)
+      arg_kw_pvalues = c(arg_kw_pvalues, test2$p.value)
     }else{
       arg_wilcox_pvalues = c(arg_wilcox_pvalues, NA)
+      arg_kw_pvalues = c(arg_kw_pvalues, NA)
     }
   }else{
     arg_wilcox_pvalues = c(arg_wilcox_pvalues, NA)
+    arg_kw_pvalues = c(arg_kw_pvalues, NA)
   }
 }
 arg_drug_results = data.frame(drug = all_drug, pval = arg_wilcox_pvalues)
+arg_kw_results = data.frame(drug = all_drug, pval = arg_kw_pvalues)
+
+rownames(complete_data_total_admin) = c()
+#write_xlsx(complete_data_total_admin, 
+#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_total_admin.xlsx")
 
 ###############################################################################
 

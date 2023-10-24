@@ -245,6 +245,9 @@ for(i in 1:nrow(new_data)){
 
 # new_data has added binary variable called gain (0 = loss/neither, 1 = gain)
 new_data$gain = as.factor(gain)
+complete_data_route = new_data
+#write_xlsx(complete_data_route, 
+#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_route.xlsx")
 
 ###################### DIFFERENCES ################################
 # 1. OR
