@@ -32,21 +32,16 @@ shapiro.test(data$num_of_uniq_drugs)
 
 # running mann whitney u aka wilcoxon rank sum tests to see if the 2 groups come 
 # from the same distribution or not
-wilcox.test(num_of_uniq_drugs ~ ARI, data = data)
-wilcox.test(num_of_uniq_drugs ~ ARC, data = data)
-wilcox.test(num_of_uniq_drugs ~ Both, data = data)
-
+test1 = wilcox.test(num_of_uniq_drugs ~ ARI, data = data)
+test2 = wilcox.test(num_of_uniq_drugs ~ ARC, data = data)
+test3 = wilcox.test(num_of_uniq_drugs ~ Both, data = data)
+p = c(test1$p.value, test2$p.value, test3$p.value)
+uniq_drug_wilcox = data.frame(outcome = c("non-ARI vs. ARI", "non-ARC vs. ARC",
+                                          "non-Both vs. Both"), 
+                              pvals = p)
+adj = p.adjust(p, method = "fdr", n = length(p))
+uniq_drug_wilcox$pvals_adj = adj
 ###################### ASSOCIATIONS ###############################
-
-# kruskal-wallis
-kruskal_ARI = kruskal.test(num_of_uniq_drugs ~ ARI, data = data)
-kruskal_ARC = kruskal.test(num_of_uniq_drugs ~ ARC, data = data)
-kruskal_Both = kruskal.test(num_of_uniq_drugs ~ Both, data = data)
-
-# store p-values into data frame kruskal_results
-kruskal_results = data.frame(outcome = c("ARI", "ARC", "Both"), 
-                             pvals = c(kruskal_ARI$p.value, kruskal_ARC$p.value,
-                                       kruskal_Both$p.value))
 
 # kruskal-wallis actually done right
 num_AR_outcome = rep(0, nrow(data))
@@ -61,7 +56,7 @@ for(i in 1:nrow(data)){
 num_AR_outcome = as.factor(num_AR_outcome)
 new_data = cbind(data[,1:4], num_AR_outcome)
 kw_test = kruskal.test(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
-dunnTest(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
+#dunnTest(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
 
 
 ################################################################################
@@ -70,57 +65,58 @@ dunnTest(num_of_uniq_drugs ~ num_AR_outcome, data = new_data)
 # patient is on among the different outcome groups 
 # (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) as well as gain/loss of ARGs?
 
-path2 = "Datasets/amr_analysis_pt1_counts.xlsx"
-ARG_count = (multiplesheets(path2))$Combined
+path2 = "Datasets/bl_eos_arg_counts.xlsx"
+ARG_count = (multiplesheets(path2))$collection_info
 
-ARG_BL = c()
-ARG_EOS = c()
+path3 = "Datasets/K01_AntibioticData_for_ARG.xlsx"
+new_admin_data = (multiplesheets(path3))$Filtered
+
+data2 = ARG_count[,1:3]
+
+num_uniq_drug = c()
+
+for(i in 1:nrow(data2)){
+  temp = new_admin_data %>% filter(mrn == data2$mrn[i])
+  if(nrow(temp) > 0){
+    temp_drugs = unique(temp$Genericname)
+    num_uniq_drug = c(num_uniq_drug, length(temp_drugs))
+  }else{
+    num_uniq_drug = c(num_uniq_drug, NA)
+  }
+}
+
+data2 = cbind(data2, num_uniq_drug, ARG_count[,7:8])
+new_data2 = na.omit(data2)
+
+new_data2$delta = new_data2$EOS - new_data2$BL
+new_data2$gain = rep(0, nrow(new_data2))
+new_data2$gain2 = rep("gain", nrow(new_data2))
 
 # combining the ARG BL and EOS counts from ARG_count dataframe and the data
-for(i in 1:nrow(data)){
-  cohort = data$Cohort[i]
-  pt_id = data$pt_id[i]
-  temp = ARG_count %>% filter(cohort == cohort, pt == pt_id)
-  if(nrow(temp) > 0){
-    ARG_BL[i] = temp$BL
-    ARG_EOS[i] = temp$EOS
+for(i in 1:nrow(new_data2)){
+  if(new_data2$delta[i] > 0){
+    new_data2$gain[i] = 1
+    new_data2$gain2[i] = "gain"
+  }else if(new_data2$delta[i] < 0){
+    new_data2$gain[i] = 0
+    new_data2$gain2[i] = "loss"
   }else{
-    ARG_BL[i] = NA
-    ARG_EOS[i] = NA
+    new_data2$gain[i] = NA
+    new_data2$gain2[i] = "neither"
   }
 }
+new_data2$gain = as.factor(new_data2$gain)
+new_data2_copy = na.omit(new_data2)
 
-# create new columns in data to hold ARG counts
-data$ARG_BL = ARG_BL
-data$ARG_EOS = ARG_EOS
-
-# take only the patients that have both BL and EOS ARG counts for our next analyses
-new_data = na.omit(data)
-gain = c()
-
-for(i in 1:nrow(new_data)){
-  if(new_data$ARG_EOS[i] - new_data$ARG_BL[i] > 0){
-    gain[i] = 1
-  }else{
-    gain[i] = 0
-  }
-}
-
-# new_data has added binary variable called gain (0 = loss/neither, 1 = gain)
-new_data$gain = as.factor(gain)
-complete_data_uniq_drug = new_data
-#write_xlsx(complete_data_uniq_drug, 
-#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_uniq_drug.xlsx")
 
 ###################### DIFFERENCES ################################
-wilcox.test(num_of_uniq_drugs ~ gain, data = new_data)
+wilcox.test(num_uniq_drug ~ gain, data = new_data2_copy)
 
 ###################### ASSOCIATIONS ################################
-kruskal.test(num_of_uniq_drugs ~ gain, data = new_data)
+kruskal.test(num_uniq_drug ~ gain2, data = new_data2)
 
 #########################################################################
 # Question 1c: are there differences between the number of unique drugs a 
 # patient is on among the different outcome groups 
 # (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both) as well as delta ARG counts?
-new_data$delta = new_data$ARG_EOS - new_data$ARG_BL
-cor.test(new_data$num_of_uniq_drugs, new_data$delta, method = "spearman")
+cor.test(new_data2$num_uniq_drug, new_data2$delta, method = "spearman")
