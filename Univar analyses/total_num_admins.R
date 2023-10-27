@@ -128,60 +128,13 @@ for(i in 1:length(all_drug)){
 
 total_num_admins_wilcox = data.frame(drug = all_drug, ARI = ARI_wilcox_pvals, 
                                      ARC = ARC_wilcox_pvals, Both = Both_wilcox_pvals)
+p = c(ARI_wilcox_pvals, ARC_wilcox_pvals, Both_wilcox_pvals)
+adj = p.adjust(p, method = "fdr", n = length(p))
+total_num_admins_wilcox$ARI_adj = adj[1:21]
+total_num_admins_wilcox$ARC_adj = adj[22:42]
+total_num_admins_wilcox$Both_adj = adj[43:63]
 
 ################## ASSOCIATIONS/CORRELATIONS #################################
-
-#1. ARI
-all_drug = unique(data3$drug)
-ARI_kw_pvals = c()
-for(i in 1:length(all_drug)){
-  temp = data3 %>% filter(drug == all_drug[i])
-  if(nrow(temp) > 1){
-    if((0 %in% temp$ARI == T) & (1 %in% temp$ARI == T)){
-      test = kruskal.test(total_admins ~ ARI, data = temp)
-      ARI_kw_pvals = c(ARI_kw_pvals, test$p.value)
-    }else{
-      ARI_kw_pvals = c(ARI_kw_pvals, NA)
-    }
-  }else{
-    ARI_kw_pvals = c(ARI_kw_pvals, NA)
-  }
-}
-
-#2. ARC
-ARC_kw_pvals = c()
-for(i in 1:length(all_drug)){
-  temp = data3 %>% filter(drug == all_drug[i])
-  if(nrow(temp) > 1){
-    if((0 %in% temp$ARC == T) & (1 %in% temp$ARC == T)){
-      test = kruskal.test(total_admins ~ ARC, data = temp)
-      ARC_kw_pvals = c(ARC_kw_pvals, test$p.value)
-    }else{
-      ARC_kw_pvals = c(ARC_kw_pvals, NA)
-    }
-  }else{
-    ARC_kw_pvals = c(ARC_kw_pvals, NA)
-  }
-}
-
-#3. Both
-Both_kw_pvals = c()
-for(i in 1:length(all_drug)){
-  temp = data3 %>% filter(drug == all_drug[i])
-  if(nrow(temp) > 1){
-    if((0 %in% temp$Both == T) & (1 %in% temp$Both == T)){
-      test = kruskal.test(total_admins ~ Both, data = temp)
-      Both_kw_pvals = c(Both_kw_pvals, test$p.value)
-    }else{
-      Both_kw_pvals = c(Both_kw_pvals, NA)
-    }
-  }else{
-    Both_kw_pvals = c(Both_kw_pvals, NA)
-  }
-}
-total_num_admins_kw = data.frame(drugs = all_drug, ARI = ARI_kw_pvals, 
-                                 ARC = ARC_kw_pvals, Both = Both_kw_pvals)
-
 
 # kruskal wallis done right
 num_AR_outcome = rep(0, nrow(data3))
@@ -195,8 +148,22 @@ for(i in 1:nrow(data3)){
 }
 num_AR_outcome = as.factor(num_AR_outcome)
 new_data = cbind(data3[,1:5], num_AR_outcome)
-kw_test = kruskal.test(total_admins ~ num_AR_outcome, data = new_data)
-kw_test
+
+kw_pvals = c()
+for(i in 1:length(all_drug)){
+  temp = new_data %>% filter(drug == all_drug[i])
+  if(nrow(temp) > 1){
+    if((0 %in% temp$num_AR_outcome == T) & (1 %in% temp$num_AR_outcome == T) & (2 %in% temp$num_AR_outcome == T)){
+      test = kruskal.test(total_admins ~ num_AR_outcome, data = temp)
+      kw_pvals = c(kw_pvals, test$p.value)
+    }else{
+      kw_pvals = c(kw_pvals, NA)
+    }
+  }else{
+    kw_pvals = c(kw_pvals, NA)
+  }
+}
+total_admin_kw_results = data.frame(drug = all_drug, pvals = kw_pvals)
 
 ###############################################################################
 
@@ -204,67 +171,25 @@ kw_test
 # among the different outcome groups (non-ARI vs. ARI, non-ARC vs. ARC, non-Both vs. Both)
 # as well as gain/loss ARG counts?
 
-path3 = "Datasets/amr_analysis_pt1_counts.xlsx"
-ARG_count = (multiplesheets(path3))$Combined
-arg_wilcox_pvalues = c()
-arg_kw_pvalues = c()
-complete_data_total_admin = c()
+path2 = "Datasets/bl_eos_arg_counts.xlsx"
+ARG_count = (multiplesheets(path2))$collection_info
 
-for(i in 1:length(all_drug)){
-  tempdata = data3 %>% filter(drug == all_drug[i])
-  ARG_BL = c()
-  ARG_EOS = c()
-  for(j in 1:nrow(tempdata)){
-    cohort = tempdata$cohort[j]
-    pt_id = tempdata$pt_id[j]
-    temp = ARG_count %>% filter(cohort == cohort, pt == pt_id)
-    if(nrow(temp) > 0){
-      ARG_BL[j] = temp$BL
-      ARG_EOS[j] = temp$EOS
-    }else{
-      ARG_BL[j] = NA
-      ARG_EOS[j] = NA
+path3 = "Datasets/K01_AntibioticData_for_ARG.xlsx"
+new_admin_data = (multiplesheets(path3))$Filtered
+
+new = c()
+
+for(i in 1:nrow(ARG_count)){
+  temp = new_admin_data %>% filter(mrn == ARG_count$mrn[i])
+  if(nrow(temp) > 0){
+    temp_drug = unique(temp$Genericname)
+    for(j in 1:length(temp_drug)){
+      temp2 = temp %>% filter(Genericname == temp_drug[j])
+      fill = c(ARG_count[i,1:3], temp_drug[j], nrow(temp2), ARG_count[i,7:8])
+      new = rbind(new, fill)
     }
-  }
-  # create new columns in data to hold ARG counts
-  tempdata$ARG_BL = ARG_BL
-  tempdata$ARG_EOS = ARG_EOS
-  
-  # take only the patients that have both BL and EOS ARG counts for our next analyses
-  new_data = na.omit(tempdata)
-  gain = c()
-  complete_data_total_admin = rbind(complete_data_total_admin, new_data)
-  
-  if(nrow(new_data) > 1){
-    for(k in 1:nrow(new_data)){
-      sum = new_data$ARG_EOS[k] - new_data$ARG_BL[k]
-      if(sum > 0){
-        gain[k] = 1
-      }else{
-        gain[k] = 0
-      }
-    }
-    if((0 %in% gain == T) & (1 %in% gain == T)){
-      test = wilcox.test(total_admins ~ gain, data = new_data)
-      test2 = kruskal.test(total_admins ~ gain, data = new_data)
-      arg_wilcox_pvalues = c(arg_wilcox_pvalues, test$p.value)
-      arg_kw_pvalues = c(arg_kw_pvalues, test2$p.value)
-    }else{
-      arg_wilcox_pvalues = c(arg_wilcox_pvalues, NA)
-      arg_kw_pvalues = c(arg_kw_pvalues, NA)
-    }
-  }else{
-    arg_wilcox_pvalues = c(arg_wilcox_pvalues, NA)
-    arg_kw_pvalues = c(arg_kw_pvalues, NA)
   }
 }
-arg_drug_results = data.frame(drug = all_drug, pval = arg_wilcox_pvalues)
-arg_kw_results = data.frame(drug = all_drug, pval = arg_kw_pvalues)
-
-rownames(complete_data_total_admin) = c()
-#write_xlsx(complete_data_total_admin, 
-#           path = "~/Documents/research for dr.g-p/my created datasets/complete_data_total_admin.xlsx")
-
 ###############################################################################
 
 # Question: are there differences between the total number of admins a patient receives on a particular drug 
